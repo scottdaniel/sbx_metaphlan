@@ -54,7 +54,7 @@ rule metaphlan_bowtie:
         pair = expand(str(QC_FP/'decontam'/'{sample}_{rp}.fastq.gz'),
                       sample = "{sample}",
                       rp = Pairs),
-        dbdir = ancient(str(CLASSIFY_FP/'metaphlan'/'database'))
+        dbdir = ancient(str(CLASSIFY_FP/'metaphlan'/'databases'))
     threads:
         Cfg['sbx_metaphlan']['threads']
     conda:
@@ -73,17 +73,18 @@ rule metaphlan_bowtie:
 # and symlink it into the metaphlan output dir.
 rule metaphlan_database:
     output:
-        dbdir = ancient(str(CLASSIFY_FP/'metaphlan'/'database'))
+        dbdir = ancient(str(CLASSIFY_FP/'metaphlan'/'databases'))
     conda:
         "sbx_metaphlan_env.yml"
     shell:
         """
-            bt2="$CONDA_PREFIX/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2"
-            if [ $(ls ${{bt2[@]}} 2> /dev/null | wc -l) -ne 6 ]
+            bt2=$(ls -1 "$CONDA_PREFIX"/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2 | wc -l)
+            if [[ "$bt2" != 6 ]]
             then
                 metaphlan2.py --install
             fi
-            if [ $(ls ${{bt2[@]}} 2> /dev/null | wc -l) -eq 6 ]
+            bt2=$(ls -1 "$CONDA_PREFIX"/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2 | wc -l)
+            if [[ "$bt2" == 6 ]]
             then
                 ln -s "$CONDA_PREFIX/bin/databases" "{output.dbdir}"
             fi
