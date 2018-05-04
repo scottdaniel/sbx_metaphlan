@@ -1,7 +1,8 @@
 # sbx-metaphlan
 
 [Sunbeam] extension for running [MetaPhlAn2], adapted from
-@zhaoc1's [sunbeam_neutrino](https://github.com/PennChopMicrobiomeProgram/sunbeam_neutrino).
+[zhaoc1](https://github.com/zhaoc1)'s
+[sunbeam_neutrino](https://github.com/PennChopMicrobiomeProgram/sunbeam_neutrino).
 
 ## Installation
 
