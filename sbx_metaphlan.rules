@@ -76,15 +76,21 @@ rule metaphlan_database:
         "sbx_metaphlan_env.yml"
     shell:
         """
-            bt2=$(ls -1 "$CONDA_PREFIX"/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2 | wc -l)
+            # Snakemake by default fails the whole shell script if any command
+            # within a pipe has a non-zero exit status.  Disabling that here.
+            set +o pipefail
+            function lsbt2 {
+            ls -1 "$CONDA_PREFIX"/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2 2> /dev/null | wc -l
+            }
+            bt2=$(lsbt2)
             if [[ "$bt2" != 6 ]]
             then
                 metaphlan2.py --install
             fi
-            bt2=$(ls -1 "$CONDA_PREFIX"/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2 | wc -l)
+            bt2=$(lsbt2)
             if [[ "$bt2" == 6 ]]
             then
-                ln -s "$CONDA_PREFIX/bin/databases" "{output.dbdir}"
+                ln -sf "$CONDA_PREFIX/bin/databases" "{output.dbdir}"
             fi
         """
 
