@@ -61,8 +61,6 @@ rule metaphlan_bowtie:
         "sbx_metaphlan_env.yml"
     shell:
         """
-            bt2="$CONDA_PREFIX/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2"
-            
             bowtie2 --sam-no-hd --sam-no-sq --no-unal --very-sensitive \
             -x "{input.dbdir}/mpa_v20_m200" \
             -1 {input.pair[0]} -2 {input.pair[1]} -p {threads} \
