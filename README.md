@@ -17,6 +17,9 @@ Sunbeam:
 
     sunbeam run --configfile=sunbeam_config.yml --use-conda all_metaphlan
 
+The default MetaPhlAn2 database will be downloaded and stored inside the
+original Sunbeam Conda environment in `$CONDA_PREFIX/opt/metaphlan_databases`.
+
 [Sunbeam]: https://github.com/sunbeam-labs/sunbeam
 [MetaPhlAn2]: https://bitbucket.org/biobakery/metaphlan2
 [isolated Conda environment]: http://snakemake.readthedocs.io/en/stable/snakefiles/deployment.html#integrated-package-management

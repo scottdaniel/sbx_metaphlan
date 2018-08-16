@@ -3,6 +3,11 @@
 TARGET_METAPHLAN = expand(str(CLASSIFY_FP/'metaphlan'/'review'/'{sample}_review.txt'), sample = Samples.keys())
 TARGET_METAPHLAN_REPORT = [str(CLASSIFY_FP/'metaphlan'/'taxonomic_assignments.tsv')]
 
+# The original Anaconda environment path is stored here so it can be referred
+# to from inside the special metaphlan environment used in select rules below.
+import os
+CONDA_PREFIX = os.getenv("CONDA_PREFIX")
+
 rule all_metaphlan:
     input:
         TARGET_METAPHLAN_REPORT
@@ -68,17 +73,32 @@ rule metaphlan_bowtie:
         """
 
 # Make sure metaphlan has downloaded its database and indexed it for bowtie2,
-# and symlink it into the metaphlan output dir.
+# storing the files inside the Sunbeam environment in opt/metaphlan_databases,
+# and symlink to it in the metaphlan output dir.
 rule metaphlan_database:
     output:
         dbdir = ancient(str(CLASSIFY_FP/'metaphlan'/'databases'))
     conda:
         "sbx_metaphlan_env.yml"
+    params:
+        conda_prefix = CONDA_PREFIX
     shell:
         """
             # Snakemake by default fails the whole shell script if any command
             # within a pipe has a non-zero exit status.  Disabling that here.
             set +o pipefail
+
+            # Link the two possible database locations (later versions of
+            # metaphlan2 use "metaphlan_databases") from the metphlan
+            # environment back out to the Sunbeam environment.
+            # This allows easier access to the database on disk, whether it's
+            # supplied automatically by metaphlan2 or manually before running
+            # these rules.
+            path_db="{params.conda_prefix}/opt/metaphlan_databases"
+            mkdir -p "$path_db"
+            ln -sfT "$path_db" "$CONDA_PREFIX"/bin/databases
+            ln -sfT "$path_db" "$CONDA_PREFIX"/bin/metaphlan_databases
+
             function lsbt2 {{
             ls -1 "$CONDA_PREFIX"/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2 2> /dev/null | wc -l
             }}
@@ -87,6 +107,9 @@ rule metaphlan_database:
             then
                 metaphlan2.py --install
             fi
+            # To track completion of this task, place a symlink as an output
+            # file pointing into the database location inside the metaphlan
+            # environment.
             bt2=$(lsbt2)
             if [[ "$bt2" == 6 ]]
             then
