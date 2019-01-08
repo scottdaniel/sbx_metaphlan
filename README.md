@@ -6,7 +6,7 @@
 
 ## Installation
 
-    git clone https://github.com/ressy/sbx_metaphlan
+    git clone https://github.com/sunbeam-labs/sbx_metaphlan
     cat sunbeam/extensions/sbx_metaphlan/config.yml >> sunbeam_config.yml
 
 ## Running
