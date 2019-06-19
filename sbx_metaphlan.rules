@@ -45,6 +45,11 @@ rule metaphlan_classify:
         "sbx_metaphlan_env.yml"
     shell:
         """
+            #if you have the metaphlan environment pre-installed
+            #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
+            #then you can uncomment the following line and not "--use-conda" in sunbeam
+#            conda activate metaphlan
+
             metaphlan2.py  \
             --nproc {threads} \
             --input_type sam \
@@ -67,6 +72,11 @@ rule metaphlan_bowtie:
         "sbx_metaphlan_env.yml"
     shell:
         """
+            #if you have the metaphlan environment pre-installed
+            #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
+            #then you can uncomment the following line and not "--use-conda" in sunbeam
+#            conda activate metaphlan
+
             bowtie2 --sam-no-hd --sam-no-sq --no-unal --very-sensitive \
             -x "{input.dbdir}/mpa*" \
             -1 {input.pair[0]} -2 {input.pair[1]} -p {threads} \
@@ -85,6 +95,11 @@ rule metaphlan_database:
         conda_prefix = CONDA_PREFIX
     shell:
         """
+            #if you have the metaphlan environment pre-installed
+            #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
+            #then you can uncomment the following line and not "--use-conda" in sunbeam
+#            conda activate metaphlan
+
             # Snakemake by default fails the whole shell script if any command
             # within a pipe has a non-zero exit status.  Disabling that here.
             set +o pipefail
