@@ -6,6 +6,7 @@ TARGET_METAPHLAN_REPORT = [str(CLASSIFY_FP/'metaphlan'/'taxonomic_assignments.ts
 # The original Anaconda environment path is stored here so it can be referred
 # to from inside the special metaphlan environment used in select rules below.
 import os
+import pandas
 CONDA_PREFIX = os.getenv("CONDA_PREFIX")
 
 rule all_metaphlan:
@@ -59,7 +60,7 @@ rule metaphlan_bowtie:
         pair = expand(str(QC_FP/'decontam'/'{sample}_{rp}.fastq.gz'),
                       sample = "{sample}",
                       rp = Pairs),
-        dbdir = ancient(str(CLASSIFY_FP/'metaphlan'/'databases'))
+        dbdir = str(CLASSIFY_FP/'metaphlan'/'databases')
     threads:
         Cfg['sbx_metaphlan']['threads']
     conda:
@@ -67,7 +68,7 @@ rule metaphlan_bowtie:
     shell:
         """
             bowtie2 --sam-no-hd --sam-no-sq --no-unal --very-sensitive \
-            -x "{input.dbdir}/mpa_v20_m200" \
+            -x "{input.dbdir}/mpa*" \
             -1 {input.pair[0]} -2 {input.pair[1]} -p {threads} \
             | bzip2 > {output.sambz2}
         """
@@ -77,7 +78,7 @@ rule metaphlan_bowtie:
 # and symlink to it in the metaphlan output dir.
 rule metaphlan_database:
     output:
-        dbdir = ancient(str(CLASSIFY_FP/'metaphlan'/'databases'))
+        dbdir = str(CLASSIFY_FP/'metaphlan'/'databases')
     conda:
         "sbx_metaphlan_env.yml"
     params:
@@ -100,7 +101,7 @@ rule metaphlan_database:
             ln -sfT "$path_db" "$CONDA_PREFIX"/bin/metaphlan_databases
 
             function lsbt2 {{
-            ls -1 "$CONDA_PREFIX"/bin/databases/mpa_v20_m200{{.{{1..4}},.rev.{{1..2}}}}.bt2 2> /dev/null | wc -l
+            ls -1 "$CONDA_PREFIX"/bin/databases/mpa*{{.{{1..4}},.rev.{{1..2}}}}.bt2 2> /dev/null | wc -l
             }}
             bt2=$(lsbt2)
             if [[ "$bt2" != 6 ]]
