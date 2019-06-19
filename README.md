@@ -17,6 +17,16 @@ Sunbeam:
 
     sunbeam run --configfile=sunbeam_config.yml --use-conda all_metaphlan
 
+*Alternatively*
+
+You can pre-install the conda environment like so:
+
+    conda create -n metaphlan -c bioconda bowtie2 metaphlan2
+
+And then uncomment the lines in the sbx_metaphlan.rules file that look like this:
+
+    #conda activate metaphlan
+
 The default MetaPhlAn2 database will be downloaded and stored inside the
 original Sunbeam Conda environment in `$CONDA_PREFIX/opt/metaphlan_databases`.
 
