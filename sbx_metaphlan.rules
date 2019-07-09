@@ -38,7 +38,8 @@ rule metaphlan_classify:
     output:
         meta_raw = str(CLASSIFY_FP/'metaphlan'/'raw'/'{sample}_metagenome.txt'),
     input:
-        sambz2 = str(CLASSIFY_FP/'metaphlan'/'raw'/'{sample}.bowtie2.sam.bz2')
+        sambz2 = str(CLASSIFY_FP/'metaphlan'/'raw'/'{sample}.bowtie2.sam.bz2'),
+        dbdir = str(CLASSIFY_FP/'metaphlan'/'databases')
     threads:
         Cfg['sbx_metaphlan']['threads']
     conda:
@@ -48,9 +49,10 @@ rule metaphlan_classify:
             #if you have the metaphlan environment pre-installed
             #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
             #then you can uncomment the following line and not "--use-conda" in sunbeam
-#            conda activate metaphlan
+            source ~/.bashrc #should make conda activate work
+            conda activate metaphlan
 
-            metaphlan2.py  \
+            metaphlan2.py \
             --nproc {threads} \
             --input_type sam \
             {input.sambz2} {output.meta_raw}
@@ -75,12 +77,16 @@ rule metaphlan_bowtie:
             #if you have the metaphlan environment pre-installed
             #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
             #then you can uncomment the following line and not "--use-conda" in sunbeam
-#            conda activate metaphlan
+            source ~/.bashrc #should make conda activate work
+            conda activate metaphlan
 
             bowtie2 --sam-no-hd --sam-no-sq --no-unal --very-sensitive \
-            -x "{input.dbdir}/mpa*" \
+            -x "{input.dbdir}/mpa_v20_m200" \
             -1 {input.pair[0]} -2 {input.pair[1]} -p {threads} \
             | bzip2 > {output.sambz2}
+
+            #mpa_v20_m200 is the version of the db that gets downloaded with metaphlan 2.7.5
+            #in the sbx_metaphlan_env.yml
         """
 
 # Make sure metaphlan has downloaded its database and indexed it for bowtie2,
@@ -98,14 +104,15 @@ rule metaphlan_database:
             #if you have the metaphlan environment pre-installed
             #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
             #then you can uncomment the following line and not "--use-conda" in sunbeam
-#            conda activate metaphlan
+            source ~/.bashrc #should make the conda activate work
+            conda activate metaphlan
 
             # Snakemake by default fails the whole shell script if any command
             # within a pipe has a non-zero exit status.  Disabling that here.
             set +o pipefail
 
             # Link the two possible database locations (later versions of
-            # metaphlan2 use "metaphlan_databases") from the metphlan
+            # metaphlan2 use "metaphlan_databases") from the metaphlan
             # environment back out to the Sunbeam environment.
             # This allows easier access to the database on disk, whether it's
             # supplied automatically by metaphlan2 or manually before running

@@ -6,4 +6,4 @@ channels:
   - conda-forge
 dependencies:
   - bowtie2
-  - metaphlan2
+  - metaphlan2=2.7.5

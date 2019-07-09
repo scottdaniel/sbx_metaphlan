@@ -1,2 +1,2 @@
 sbx_metaphlan:
-  threads: 4
+  threads: 8
