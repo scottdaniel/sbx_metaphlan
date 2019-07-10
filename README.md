@@ -21,7 +21,7 @@ Sunbeam:
 
 You can pre-install the conda environment like so:
 
-    conda create -n metaphlan -c bioconda bowtie2 metaphlan2
+    conda create -n metaphlan -c bioconda bowtie2 metaphlan2=2.7.5
 
 And then uncomment the lines in the sbx_metaphlan.rules file that look like this:
 
