@@ -49,8 +49,8 @@ rule metaphlan_classify:
             #if you have the metaphlan environment pre-installed
             #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
             #then you can uncomment the following line and not "--use-conda" in sunbeam
-#            source ~/.bashrc.conda #should make conda activate work
-#            conda activate metaphlan
+            # source ~/.bashrc.conda #should make conda activate work
+            # conda activate metaphlan
 
             metaphlan2.py \
             --nproc {threads} \
@@ -77,8 +77,8 @@ rule metaphlan_bowtie:
             #if you have the metaphlan environment pre-installed
             #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
             #then you can uncomment the following line and not "--use-conda" in sunbeam
-#            source ~/.bashrc.conda #should make conda activate work
-#            conda activate metaphlan
+            # source ~/.bashrc.conda #should make conda activate work
+            # conda activate metaphlan
 
             bowtie2 --sam-no-hd --sam-no-sq --no-unal --very-sensitive \
             -x "{input.dbdir}/mpa_v20_m200" \
