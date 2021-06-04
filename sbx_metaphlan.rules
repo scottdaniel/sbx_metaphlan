@@ -39,7 +39,7 @@ rule metaphlan_classify:
         meta_raw = str(CLASSIFY_FP/'metaphlan'/'raw'/'{sample}_metagenome.txt'),
     input:
         sambz2 = str(CLASSIFY_FP/'metaphlan'/'raw'/'{sample}.bowtie2.sam.bz2'),
-        dbdir = str(CLASSIFY_FP/'metaphlan'/'databases')
+        dbdir = Cfg['sbx_metaphlan']['db']
     threads:
         Cfg['sbx_metaphlan']['threads']
     conda:
@@ -49,8 +49,8 @@ rule metaphlan_classify:
             #if you have the metaphlan environment pre-installed
             #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
             #then you can uncomment the following line and not "--use-conda" in sunbeam
-            source ~/.bashrc #should make conda activate work
-            conda activate metaphlan
+#            source ~/.bashrc.conda #should make conda activate work
+#            conda activate metaphlan
 
             metaphlan2.py \
             --nproc {threads} \
@@ -67,7 +67,7 @@ rule metaphlan_bowtie:
         pair = expand(str(QC_FP/'decontam'/'{sample}_{rp}.fastq.gz'),
                       sample = "{sample}",
                       rp = Pairs),
-        dbdir = str(CLASSIFY_FP/'metaphlan'/'databases')
+        dbdir = Cfg['sbx_metaphlan']['db']
     threads:
         Cfg['sbx_metaphlan']['threads']
     conda:
@@ -77,8 +77,8 @@ rule metaphlan_bowtie:
             #if you have the metaphlan environment pre-installed
             #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
             #then you can uncomment the following line and not "--use-conda" in sunbeam
-            source ~/.bashrc #should make conda activate work
-            conda activate metaphlan
+#            source ~/.bashrc.conda #should make conda activate work
+#            conda activate metaphlan
 
             bowtie2 --sam-no-hd --sam-no-sq --no-unal --very-sensitive \
             -x "{input.dbdir}/mpa_v20_m200" \
@@ -87,57 +87,6 @@ rule metaphlan_bowtie:
 
             #mpa_v20_m200 is the version of the db that gets downloaded with metaphlan 2.7.5
             #in the sbx_metaphlan_env.yml
-        """
-
-# Make sure metaphlan has downloaded its database and indexed it for bowtie2,
-# storing the files inside the Sunbeam environment in opt/metaphlan_databases,
-# and symlink to it in the metaphlan output dir.
-rule metaphlan_database:
-    output:
-        dbdir = str(CLASSIFY_FP/'metaphlan'/'databases')
-    conda:
-        "sbx_metaphlan_env.yml"
-    params:
-        conda_prefix = CONDA_PREFIX
-    shell:
-        """
-            #if you have the metaphlan environment pre-installed
-            #e.g. "conda create -n metaphlan -c bioconda bowtie2 metaphlan"
-            #then you can uncomment the following line and not "--use-conda" in sunbeam
-            source ~/.bashrc #should make the conda activate work
-            conda activate metaphlan
-
-            # Snakemake by default fails the whole shell script if any command
-            # within a pipe has a non-zero exit status.  Disabling that here.
-            set +o pipefail
-
-            # Link the two possible database locations (later versions of
-            # metaphlan2 use "metaphlan_databases") from the metaphlan
-            # environment back out to the Sunbeam environment.
-            # This allows easier access to the database on disk, whether it's
-            # supplied automatically by metaphlan2 or manually before running
-            # these rules.
-            path_db="{params.conda_prefix}/opt/metaphlan_databases"
-            mkdir -p "$path_db"
-            ln -sfT "$path_db" "$CONDA_PREFIX"/bin/databases
-            ln -sfT "$path_db" "$CONDA_PREFIX"/bin/metaphlan_databases
-
-            function lsbt2 {{
-            ls -1 "$CONDA_PREFIX"/bin/databases/mpa*{{.{{1..4}},.rev.{{1..2}}}}.bt2 2> /dev/null | wc -l
-            }}
-            bt2=$(lsbt2)
-            if [[ "$bt2" != 6 ]]
-            then
-                metaphlan2.py --install
-            fi
-            # To track completion of this task, place a symlink as an output
-            # file pointing into the database location inside the metaphlan
-            # environment.
-            bt2=$(lsbt2)
-            if [[ "$bt2" == 6 ]]
-            then
-                ln -sf "$CONDA_PREFIX/bin/databases" "{output.dbdir}"
-            fi
         """
 
 #################### Helper functions
