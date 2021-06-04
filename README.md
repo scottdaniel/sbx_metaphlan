@@ -27,8 +27,12 @@ And then uncomment the lines in the sbx_metaphlan.rules file that look like this
 
     #conda activate metaphlan
 
-The default MetaPhlAn2 database will be downloaded and stored inside the
-original Sunbeam Conda environment in `$CONDA_PREFIX/opt/metaphlan_databases`.
+~The default MetaPhlAn2 database will be downloaded and stored inside the
+original Sunbeam Conda environment in `$CONDA_PREFIX/opt/metaphlan_databases`.~
+
+The database does not download correctly because this version is obsolete.
+
+You might find a copy here: `/mnt/isilon/microbiome/analysis/biodata/metaphlan_databases`
 
 [Sunbeam]: https://github.com/sunbeam-labs/sunbeam
 [MetaPhlAn2]: https://bitbucket.org/biobakery/metaphlan2
