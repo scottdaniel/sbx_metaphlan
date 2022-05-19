@@ -1,5 +1,6 @@
 channels:
   - bioconda
+  - conda-forge
 dependencies:
   - bowtie2=2.3.5.1
   - metaphlan2=2.7.5
